@@ -1,33 +1,28 @@
 {
-  "version_etiqueta": "RSSv2",
-  "ultima_actualizacion": "2026-11-24T13:00:00-03:00",
-  "version_actual": "2026-11-24-Tarde (13:00)",
+  "version_etiqueta": "RSSv3",
+  "ultima_actualizacion": "2026-11-24T15:00:00-03:00",
+  "version_actual": "24/11/2026 · 15:00 (RSSv3)",
   "versiones_disponibles": [
     {
-      "id": "2026-11-24-1300",
-      "etiqueta": "24/11/2026 · 13:00 (Corrida 2/3)",
-      "timestamp": "2026-11-24T13:00:00-03:00",
+      "id": "2026-11-24-1500",
+      "etiqueta": "24/11/2026 · 15:00 (RSSv3)",
+      "timestamp": "2026-11-24T15:00:00-03:00",
       "total_items": 4,
-      "fuentes_ok": 32,
+      "fuentes_ok": 34,
       "fuentes_error": 3
-    },
-    {
-      "id": "2026-11-24-0800",
-      "etiqueta": "24/11/2026 · 08:00 (Corrida 1/3)",
-      "timestamp": "2026-11-24T08:00:00-03:00",
-      "total_items": 2,
-      "fuentes_ok": 31,
-      "fuentes_error": 4
     }
   ],
   "items": [
     {
-      "id": "seed-1",
-      "titulo": "UNLaR y CONICET impulsan proyectos de investigación sobre recursos hídricos y energías renovables en La Rioja",
-      "resumen": "Convenio marco orientado al desarrollo científico en zonas áridas y transferencia tecnológica para el interior riojano.",
+      "id": "v3-seed-1",
+      "titulo": "UNLaR y CONICET impulsan proyectos sobre recursos hídricos y energías limpias en La Rioja",
+      "copete": "Convenio estratégico para investigación aplicada en zonas áridas y transición energética regional.",
+      "cuerpo": "La Universidad Nacional de La Rioja y el CONICET avanzaron en líneas conjuntas de trabajo sobre manejo eficiente del agua, energía solar y desarrollo territorial en departamentos riojanos. Los equipos científicos destacaron la articulación con organismos locales para transferir resultados a políticas públicas y sectores productivos.",
+      "resumen": "Convenio estratégico para investigación aplicada en zonas áridas y transición energética regional.",
+      "imagen": "",
       "enlace": "https://www.unlar.edu.ar/",
-      "fecha_publicacion": "2026-11-24T11:20:00-03:00",
-      "version_id": "2026-11-24-1300",
+      "fecha_publicacion": "2026-11-24T13:20:00-03:00",
+      "version_id": "2026-11-24-1500",
       "fuente_id": "lr-unlar-noticias",
       "fuente_nombre": "Universidad Nacional de La Rioja (UNLaR)",
       "ambito": "La Rioja",
@@ -36,16 +31,43 @@
       "etiquetas": [
         "La Rioja",
         "Universidad",
-        "Ciencia"
+        "Ciencia",
+        "UNLaR",
+        "CONICET"
       ]
     },
     {
-      "id": "seed-2",
-      "titulo": "Producción vitivinícola y economías regionales: análisis de cosecha y logística en el Valle de Famatina",
-      "resumen": "Informe sobre cadenas productivas regionales, costos logísticos y perspectivas de exportación.",
+      "id": "v3-seed-2",
+      "titulo": "CONICET difunde avances científicos en biotecnología, clima y sistemas productivos",
+      "copete": "Nuevos estudios institucionales conectan investigación básica con desafíos ambientales y productivos.",
+      "cuerpo": "Investigadores del CONICET presentaron resultados recientes vinculados a adaptación climática, sostenibilidad de recursos y mejora de procesos productivos. El cruce entre reportes científicos nacionales y demandas regionales permite identificar oportunidades de cooperación interinstitucional.",
+      "resumen": "Nuevos estudios institucionales conectan investigación básica con desafíos ambientales y productivos.",
+      "imagen": "",
+      "enlace": "https://www.conicet.gov.ar/",
+      "fecha_publicacion": "2026-11-24T12:40:00-03:00",
+      "version_id": "2026-11-24-1500",
+      "fuente_id": "ar-conicet-noticias",
+      "fuente_nombre": "CONICET - Prensa y Noticias",
+      "ambito": "Nacional",
+      "tipo_entidad": "Centro de Investigación",
+      "tema": "Ciencia, Tecnología y Educación",
+      "etiquetas": [
+        "Nacional",
+        "Centro de Investigación",
+        "Ciencia",
+        "CONICET"
+      ]
+    },
+    {
+      "id": "v3-seed-3",
+      "titulo": "Economías regionales, logística y transición energética en el radar productivo",
+      "copete": "Análisis de costos de transporte, cadenas de valor y financiamiento para actividades regionales.",
+      "cuerpo": "Distintos reportes económicos y regionales señalan el impacto de la logística, la energía y el acceso a herramientas de financiamiento sobre la competitividad de las economías del interior. La coordinación entre sectores productivos y entidades técnicas resulta clave para sostener la actividad.",
+      "resumen": "Análisis de costos de transporte, cadenas de valor y financiamiento para actividades regionales.",
+      "imagen": "",
       "enlace": "https://chilecitoaldia.com.ar/",
-      "fecha_publicacion": "2026-11-24T10:15:00-03:00",
-      "version_id": "2026-11-24-1300",
+      "fecha_publicacion": "2026-11-24T11:50:00-03:00",
+      "version_id": "2026-11-24-1500",
       "fuente_id": "lr-chilecito-al-dia",
       "fuente_nombre": "Chilecito al Día",
       "ambito": "La Rioja",
@@ -54,16 +76,20 @@
       "etiquetas": [
         "La Rioja",
         "Medio de Comunicación",
-        "Economía"
+        "Economía",
+        "Producción"
       ]
     },
     {
-      "id": "seed-3",
-      "titulo": "Actualización de series estadísticas y datasets abiertos en el portal nacional",
-      "resumen": "Nuevos conjuntos de datos publicados en el catálogo oficial con acceso libre para análisis institucional.",
+      "id": "v3-seed-4",
+      "titulo": "Actualización de datos abiertos y normativa pública para seguimiento institucional",
+      "copete": "Nuevos conjuntos de datos y publicaciones oficiales disponibles para consulta abierta.",
+      "cuerpo": "El catálogo de datos abiertos y los canales oficiales incorporaron actualizaciones relevantes para el monitoreo de políticas públicas, indicadores y normativa vigente. Contar con información estructurada facilita el contraste entre fuentes nacionales y provinciales.",
+      "resumen": "Nuevos conjuntos de datos y publicaciones oficiales disponibles para consulta abierta.",
+      "imagen": "",
       "enlace": "https://datos.gob.ar/",
-      "fecha_publicacion": "2026-11-24T09:05:00-03:00",
-      "version_id": "2026-11-24-1300",
+      "fecha_publicacion": "2026-11-24T10:30:00-03:00",
+      "version_id": "2026-11-24-1500",
       "fuente_id": "ar-datos-abiertos",
       "fuente_nombre": "Datos Abiertos Argentina (Catálogo General)",
       "ambito": "Nacional",
@@ -72,106 +98,44 @@
       "etiquetas": [
         "Nacional",
         "Gobierno",
-        "Normativa y Datos Oficiales"
-      ]
-    },
-    {
-      "id": "seed-4",
-      "titulo": "Agenda institucional y políticas públicas en debate federal",
-      "resumen": "Cobertura sobre gestión administrativa, acuerdos interprovinciales y agenda parlamentaria.",
-      "enlace": "https://www.argentina.gob.ar/noticias",
-      "fecha_publicacion": "2026-11-24T07:50:00-03:00",
-      "version_id": "2026-11-24-0800",
-      "fuente_id": "ar-gob-noticias",
-      "fuente_nombre": "Argentina.gob.ar - Noticias Oficiales",
-      "ambito": "Nacional",
-      "tipo_entidad": "Gobierno",
-      "tema": "Política y Gestión",
-      "etiquetas": [
-        "Nacional",
-        "Gobierno",
-        "Política y Gestión"
+        "Normativa y Datos Oficiales",
+        "Datos Abiertos"
       ]
     }
   ],
-  "sintesis_originales": [
+  "contenidos_vinculados": [
     {
-      "id": "sin-ciencia-1",
+      "id": "sintesis-ciencia-tecnologia-y-educacion",
       "tema": "Ciencia, Tecnología y Educación",
-      "titulo": "Síntesis multicanal · Ciencia, Tecnología y Educación: investigación regional, recursos hídricos y datos abiertos",
-      "resumen_original": "Al cruzar las publicaciones de Universidad Nacional de La Rioja (UNLaR) y Datos Abiertos Argentina (Catálogo General) bajo la taxonomía Ciencia, Tecnología y Educación, se destaca una convergencia entre investigación aplicada en zonas áridas y disponibilidad de información pública. Las notas vinculadas muestran cómo los proyectos científicos en La Rioja se conectan con marcos de datos abiertos y políticas de transferencia para el desarrollo regional.",
+      "titulo_original": "Síntesis transversal en Ciencia, Tecnología y Educación: articulación entre La Rioja y el ámbito nacional",
+      "copete": "Cruza 2 notas de 2 fuentes vinculadas bajo la taxonomía 'Ciencia, Tecnología y Educación'.",
+      "cuerpo_original": "Al vincular los reportes de Universidad Nacional de La Rioja (UNLaR) y CONICET - Prensa y Noticias dentro de 'Ciencia, Tecnología y Educación', se observa una convergencia entre la agenda local y el panorama nacional. Por un lado, se destaca: 'UNLaR y CONICET impulsan proyectos sobre recursos hídricos y energías limpias en La Rioja'. Por otro, se suma la perspectiva de 'CONICET - Prensa y Noticias' con: 'CONICET difunde avances científicos en biotecnología, clima y sistemas productivos'. Este cruce temático permite leer los avances y desafíos de forma integrada, identificando puntos de contacto entre La Rioja y el resto del país.",
       "fuentes_vinculadas": [
-        {
-          "id": "lr-unlar-noticias",
-          "nombre": "Universidad Nacional de La Rioja (UNLaR)",
-          "ambito": "La Rioja"
-        },
-        {
-          "id": "ar-datos-abiertos",
-          "nombre": "Datos Abiertos Argentina (Catálogo General)",
-          "ambito": "Nacional"
-        }
+        "Universidad Nacional de La Rioja (UNLaR)",
+        "CONICET - Prensa y Noticias"
       ],
-      "notas_referenciadas": [
+      "notas_vinculadas": [
         {
-          "titulo": "UNLaR y CONICET impulsan proyectos de investigación sobre recursos hídricos y energías renovables en La Rioja",
-          "enlace": "https://www.unlar.edu.ar/",
-          "fuente_nombre": "Universidad Nacional de La Rioja (UNLaR)"
+          "id": "v3-seed-1",
+          "titulo": "UNLaR y CONICET impulsan proyectos sobre recursos hídricos y energías limpias en La Rioja",
+          "fuente_nombre": "Universidad Nacional de La Rioja (UNLaR)",
+          "ambito": "La Rioja",
+          "enlace": "https://www.unlar.edu.ar/"
         },
         {
-          "titulo": "Actualización de series estadísticas y datasets abiertos en el portal nacional",
-          "enlace": "https://datos.gob.ar/",
-          "fuente_nombre": "Datos Abiertos Argentina (Catálogo General)"
+          "id": "v3-seed-2",
+          "titulo": "CONICET difunde avances científicos en biotecnología, clima y sistemas productivos",
+          "fuente_nombre": "CONICET - Prensa y Noticias",
+          "ambito": "Nacional",
+          "enlace": "https://www.conicet.gov.ar/"
         }
       ],
       "etiquetas": [
-        "La Rioja",
-        "Nacional",
         "Ciencia",
-        "Datos Abiertos",
-        "Síntesis"
-      ],
-      "fecha_generacion": "2026-11-24T13:00:00-03:00",
-      "version_id": "2026-11-24-1300"
-    },
-    {
-      "id": "sin-gestion-1",
-      "tema": "Política y Gestión",
-      "titulo": "Síntesis multicanal · Política y Gestión: articulación territorial, cadenas productivas y agenda federal",
-      "resumen_original": "La vinculación entre Chilecito al Día y Argentina.gob.ar - Noticias Oficiales en Política y Gestión reúne dinámicas productivas del interior riojano con lineamientos de gestión institucional. Esta lectura cruzada permite observar cómo las economías regionales y la agenda pública interactúan en distintos niveles territoriales.",
-      "fuentes_vinculadas": [
-        {
-          "id": "lr-chilecito-al-dia",
-          "nombre": "Chilecito al Día",
-          "ambito": "La Rioja"
-        },
-        {
-          "id": "ar-gob-noticias",
-          "nombre": "Argentina.gob.ar - Noticias Oficiales",
-          "ambito": "Nacional"
-        }
-      ],
-      "notas_referenciadas": [
-        {
-          "titulo": "Producción vitivinícola y economías regionales: análisis de cosecha y logística en el Valle de Famatina",
-          "enlace": "https://chilecitoaldia.com.ar/",
-          "fuente_nombre": "Chilecito al Día"
-        },
-        {
-          "titulo": "Agenda institucional y políticas públicas en debate federal",
-          "enlace": "https://www.argentina.gob.ar/noticias",
-          "fuente_nombre": "Argentina.gob.ar - Noticias Oficiales"
-        }
-      ],
-      "etiquetas": [
         "La Rioja",
         "Nacional",
-        "Política",
-        "Economía",
         "Síntesis"
-      ],
-      "fecha_generacion": "2026-11-24T13:00:00-03:00",
-      "version_id": "2026-11-24-1300"
+      ]
     }
   ]
 }
