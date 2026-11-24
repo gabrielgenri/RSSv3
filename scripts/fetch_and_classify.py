@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from html import unescape
+from urllib.parse import urljoin
 import feedparser
 import requests
 import urllib3
@@ -16,7 +17,6 @@ FEEDS_PATH = "data/feeds_argentina_larioja.json"
 OUT_PATH = "data/noticias_consolidadas.json"
 MAX_ITEMS_TOTAL = 600
 MAX_VERSIONS = 30
-MAX_SYNTHESIS_TOTAL = 60
 
 HEADERS = {
     "User-Agent": (
@@ -34,6 +34,76 @@ def strip_html(raw: str) -> str:
     clean = re.sub(r"<[^>]+>", " ", raw)
     clean = unescape(clean)
     return re.sub(r"\s+", " ", clean).strip()
+
+
+def extract_image(entry, base_url: str = "") -> str:
+    for attr in ("media_content", "media_thumbnail"):
+        media_list = getattr(entry, attr, None)
+        if isinstance(media_list, list):
+            for m in media_list:
+                u = (m.get("url") or "").strip() if isinstance(m, dict) else ""
+                if u:
+                    return urljoin(base_url, u) if base_url else u
+
+    for enc in getattr(entry, "enclosures", None) or []:
+        mtype = (enc.get("type") or "").lower() if isinstance(enc, dict) else ""
+        href = (enc.get("href") or "").strip() if isinstance(enc, dict) else ""
+        if href and ("image" in mtype or re.search(r"\.(jpe?g|png|webp|gif)(\?|$)", href, re.I)):
+            return urljoin(base_url, href) if base_url else href
+
+    for field in ("content", "summary", "description"):
+        val = getattr(entry, field, None)
+        blobs = []
+        if isinstance(val, list):
+            for c in val:
+                if isinstance(c, dict) and c.get("value"):
+                    blobs.append(c["value"])
+        elif isinstance(val, str):
+            blobs.append(val)
+        for html_blob in blobs:
+            m = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', html_blob, re.I)
+            if m:
+                src = m.group(1).strip()
+                if src and not src.startswith("data:"):
+                    return urljoin(base_url, src) if base_url else src
+
+    return ""
+
+
+def extract_body_and_lead(entry, link: str = "") -> tuple[str, str]:
+    lead_raw = getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
+    copete = strip_html(lead_raw)[:300]
+
+    body_parts = []
+    content_list = getattr(entry, "content", None)
+    if isinstance(content_list, list):
+        for c in content_list:
+            if isinstance(c, dict) and c.get("value"):
+                body_parts.append(strip_html(c["value"]))
+    if lead_raw:
+        body_parts.append(strip_html(lead_raw))
+
+    cuerpo = " ".join(part for part in body_parts if part).strip()
+    if len(cuerpo) < 180 and link and link.startswith(("http://", "https://")):
+        try:
+            r = requests.get(link, headers=HEADERS, timeout=10, verify=False)
+            if r.ok and "text/html" in r.headers.get("Content-Type", "").lower():
+                page_html = re.sub(r"<(script|style|nav|header|footer|aside)[^>]*>.*?</\1>", " ", r.text, flags=re.S | re.I)
+                paras = [strip_html(p) for p in re.findall(r"<p[^>]*>(.*?)</p>", page_html, flags=re.S | re.I)]
+                good_paras = [p for p in paras if len(p) >= 45]
+                if good_paras:
+                    article_text = " ".join(good_paras[:8])[:1600]
+                    if len(article_text) > len(cuerpo):
+                        cuerpo = article_text
+        except Exception:
+            pass
+
+    if not copete and cuerpo:
+        copete = cuerpo[:260]
+    if not cuerpo:
+        cuerpo = copete or "Contenido sin cuerpo extendido en el canal RSS."
+
+    return copete, cuerpo[:1600]
 
 
 def classify_topic(text: str, rules: dict, default_topic: str) -> tuple[str, list[str]]:
@@ -74,75 +144,64 @@ def fetch_feed_xml(url: str, timeout: int = 15):
     return resp.content
 
 
-def build_cross_channel_synthesis(items: list, run_id: str, run_iso: str) -> list:
+def build_linked_syntheses(items: list[dict], run_iso: str) -> list[dict]:
     by_topic = defaultdict(list)
     for it in items:
-        tema = it.get("tema") or "Política y Gestión"
-        by_topic[tema].append(it)
+        by_topic[it.get("tema", "Política y Gestión")].append(it)
 
     syntheses = []
     for tema, group in by_topic.items():
-        distinct_sources = {}
-        for it in group:
-            fid = it.get("fuente_id") or it.get("fuente_nombre")
-            if fid and fid not in distinct_sources:
-                distinct_sources[fid] = {
-                    "id": fid,
-                    "nombre": it.get("fuente_nombre", "Fuente"),
-                    "ambito": it.get("ambito", "Nacional"),
-                }
+        unique_sources = []
+        seen_src = set()
+        for g in group:
+            sname = g.get("fuente_nombre", "")
+            if sname and sname not in seen_src:
+                seen_src.add(sname)
+                unique_sources.append(sname)
 
-        if len(distinct_sources) < 2:
+        if len(unique_sources) < 2 and len(group) < 2:
             continue
 
-        selected_items = []
-        used_sources = set()
-        for it in group:
-            fid = it.get("fuente_id") or it.get("fuente_nombre")
-            if fid not in used_sources:
-                selected_items.append(it)
-                used_sources.add(fid)
-            if len(selected_items) >= 4:
-                break
+        top_notes = group[:4]
+        ambitos = sorted({n.get("ambito", "Nacional") for n in top_notes})
+        ambitos_txt = " y ".join(ambitos)
+        fuentes_txt = ", ".join(unique_sources[:4])
 
-        source_names = [s["nombre"] for s in list(distinct_sources.values())[:4]]
-        joined_sources = ", ".join(source_names[:-1]) + " y " + source_names[-1] if len(source_names) > 1 else source_names[0]
-
-        lead_titles = [f"«{it.get('titulo', '')}» ({it.get('fuente_nombre', '')})" for it in selected_items[:3]]
-        resumen_original = (
-            f"Cruces temáticos en {tema} a partir de {joined_sources}. "
-            f"Las publicaciones recientes vinculadas bajo esta taxonomía incluyen: {'; '.join(lead_titles)}. "
-            f"Al contrastar estos aportes de distintos canales, se configura un panorama articulado que conecta "
-            f"las agendas locales y nacionales registradas en la corrida."
+        resumen_notas = " ".join(
+            f"Desde {n.get('fuente_nombre')} ({n.get('ambito')}) se reporta: '{n.get('titulo')}'."
+            for n in top_notes
+        )
+        cuerpo_original = (
+            f"Síntesis transversal generada a partir de {len(top_notes)} notas vinculadas en la taxonomía "
+            f"'{tema}' across {ambitos_txt}, reuniendo aportes de {fuentes_txt}. "
+            f"{resumen_notas} "
+            f"Al contrastar estas fuentes en un mismo eje temático, se identifican puntos de convergencia "
+            f"y contrastes entre la agenda territorial de La Rioja y el contexto nacional para facilitar una lectura integral."
         )
 
-        tag_pool = ["Síntesis"]
-        for it in selected_items:
-            for tg in (it.get("etiquetas") or []):
-                if tg not in tag_pool:
-                    tag_pool.append(tg)
-
-        sin_id = hashlib.sha1(f"{run_id}::{tema}".encode("utf-8")).hexdigest()[:12]
+        slug = hashlib.sha1(tema.encode("utf-8")).hexdigest()[:10]
         syntheses.append({
-            "id": f"sin-{sin_id}",
+            "id": f"sintesis-{slug}",
             "tema": tema,
-            "titulo": f"Síntesis multicanal · {tema} ({len(distinct_sources)} canales vinculados)",
-            "resumen_original": resumen_original,
-            "fuentes_vinculadas": list(distinct_sources.values())[:5],
-            "notas_referenciadas": [
-                {
-                    "titulo": it.get("titulo", ""),
-                    "enlace": it.get("enlace", ""),
-                    "fuente_nombre": it.get("fuente_nombre", ""),
-                }
-                for it in selected_items
-            ],
-            "etiquetas": tag_pool[:6],
             "fecha_generacion": run_iso,
-            "version_id": run_id,
+            "titulo_original": f"Síntesis cruzada · {tema} ({ambitos_txt})",
+            "copete": f"Vincula {len(top_notes)} notas de {len(unique_sources)} canales bajo '{tema}'.",
+            "cuerpo_original": cuerpo_original,
+            "fuentes_vinculadas": unique_sources[:5],
+            "notas_vinculadas": [
+                {
+                    "id": n.get("id"),
+                    "titulo": n.get("titulo"),
+                    "fuente_nombre": n.get("fuente_nombre"),
+                    "ambito": n.get("ambito"),
+                    "enlace": n.get("enlace"),
+                }
+                for n in top_notes
+            ],
+            "etiquetas": list(dict.fromkeys([tema.split(",")[0].strip()] + ambitos + ["Contenido Vinculado"]))[:6],
         })
 
-    syntheses.sort(key=lambda x: len(x.get("fuentes_vinculadas", [])), reverse=True)
+    syntheses.sort(key=lambda s: len(s.get("notas_vinculadas", [])), reverse=True)
     return syntheses
 
 
@@ -158,7 +217,7 @@ def main():
     rules = config.get("metadata", {}).get("reglas_clasificacion", {})
     fuentes = [src for src in config.get("fuentes", []) if src.get("activo", True)]
 
-    existing = {"items": [], "versiones_disponibles": [], "sintesis_originales": []}
+    existing = {"items": [], "versiones_disponibles": []}
     if os.path.exists(OUT_PATH):
         try:
             with open(OUT_PATH, "r", encoding="utf-8") as f:
@@ -190,11 +249,9 @@ def main():
                 raise RuntimeError(f"Parse error: {parsed.bozo_exception}")
             fuentes_ok += 1
 
-            for entry in parsed.entries[:25]:
+            for entry in parsed.entries[:18]:
                 title = strip_html(getattr(entry, "title", "") or "")
                 link = (getattr(entry, "link", "") or "").strip()
-                summary_raw = getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
-                summary = strip_html(summary_raw)[:340]
                 if not title and not link:
                     continue
 
@@ -203,9 +260,12 @@ def main():
                     continue
                 seen_keys.add(dedup_key)
 
+                copete, cuerpo = extract_body_and_lead(entry, link)
+                imagen = extract_image(entry, link or url)
                 item_id = hashlib.sha1(dedup_key.encode("utf-8")).hexdigest()[:12]
+
                 tema, extra_tags = classify_topic(
-                    f"{title} {summary}",
+                    f"{title} {copete} {cuerpo[:400]}",
                     rules,
                     src.get("tema_por_defecto", "Política y Gestión"),
                 )
@@ -214,7 +274,10 @@ def main():
                 new_items.append({
                     "id": item_id,
                     "titulo": title or "(Sin título)",
-                    "resumen": summary or "Sin resumen disponible en el canal RSS.",
+                    "copete": copete or "Sin copete disponible.",
+                    "cuerpo": cuerpo,
+                    "resumen": copete or cuerpo[:280],
+                    "imagen": imagen,
                     "enlace": link,
                     "fecha_publicacion": parse_entry_date(entry, run_iso),
                     "version_id": run_id,
@@ -233,18 +296,13 @@ def main():
     merged_items.sort(key=lambda x: x.get("fecha_publicacion", ""), reverse=True)
     merged_items = merged_items[:MAX_ITEMS_TOTAL]
 
-    # Vincular por taxonomía entre canales (priorizando noticias nuevas y recientes)
-    pool_for_synthesis = new_items if len(new_items) >= 2 else merged_items[:80]
-    current_syntheses = build_cross_channel_synthesis(pool_for_synthesis, run_id, run_iso)
-    old_syntheses = [s for s in existing.get("sintesis_originales", []) if s.get("version_id") != run_id]
-    merged_syntheses = (current_syntheses + old_syntheses)[:MAX_SYNTHESIS_TOTAL]
+    contenidos_vinculados = build_linked_syntheses(merged_items, run_iso)
 
     version_entry = {
         "id": run_id,
-        "etiqueta": f"{run_label} ({len(new_items)} nuevas · {len(current_syntheses)} síntesis)",
+        "etiqueta": f"{run_label} ({len(new_items)} nuevas)",
         "timestamp": run_iso,
         "total_items": len(new_items),
-        "total_sintesis": len(current_syntheses),
         "fuentes_ok": fuentes_ok,
         "fuentes_error": fuentes_error,
     }
@@ -259,7 +317,7 @@ def main():
         "version_actual": version_entry["etiqueta"],
         "versiones_disponibles": versions,
         "items": merged_items,
-        "sintesis_originales": merged_syntheses,
+        "contenidos_vinculados": contenidos_vinculados,
     }
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
@@ -267,8 +325,8 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     print(
-        f"[RSSv3] Listo: {len(new_items)} nuevas | {len(current_syntheses)} síntesis | "
-        f"Total: {len(merged_items)} | OK: {fuentes_ok}, Err: {fuentes_error}"
+        f"[RSSv3] Nuevas: {len(new_items)} | Total: {len(merged_items)} | "
+        f"Síntesis: {len(contenidos_vinculados)} | OK: {fuentes_ok}, Err: {fuentes_error}"
     )
 
 
