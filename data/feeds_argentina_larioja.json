@@ -123,11 +123,7 @@
         "torneo"
       ]
     },
-    "sintesis_multicanal": {
-      "habilitada": true,
-      "min_fuentes_por_tema": 2,
-      "max_sintesis_por_tema": 2
-    }
+    "sintesis_tematica_habilitada": true
   },
   "fuentes": [
     {
