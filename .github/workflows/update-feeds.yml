@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Rastrear, clasificar, vincular y sintetizar RSS (RSSv3)
+      - name: Rastrear, extraer cuerpo/imagen, vincular taxonomias y consolidar (RSSv3)
         run: python scripts/fetch_and_classify.py
 
       - name: Commit y push de datos actualizados
@@ -35,7 +35,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add data/noticias_consolidadas.json data/feeds_argentina_larioja.json
           if ! git diff --staged --quiet; then
-            git commit -m "chore(RSSv3): actualizar noticias, vinculos y sintesis $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "chore(RSSv3): actualizar noticias, cuerpos y contenidos vinculados $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
           else
             echo "Sin cambios nuevos para publicar."
